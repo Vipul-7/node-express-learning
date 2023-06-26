@@ -1,21 +1,24 @@
-// const http = require("http");
-
+const path = require("path");
 const express = require("express");
+const bodyParser = require("body-parser");
+
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 
 const app = express();
 
-//middlewares
-app.use((req, res, next) => {
-  console.log("in the first Miiddleware");
-  next(); // allow request to travel on the next middleware
-});
-// use() - to use the middlewares
+// Order matters - in middle wares
+app.use(bodyParser.urlencoded({ extended: false })); // In node js we have to do with the CHUNKS and the BUFFER
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/admin", adminRoutes);
+app.use(shopRoutes);
 
 app.use((req, res, next) => {
-  console.log("In the second Miiddleware");
-  res.send("<h1>Hi! From the express") // automatically set the header
+  res.status(404).sendFile(path.join(__dirname, ".", "Views", "404.html"));
 });
-
-// const server = http.createServer(app);
 
 app.listen(3000);
+
+// use() - to use the middlewares
+// next(); // allow request to travel on the next middleware
