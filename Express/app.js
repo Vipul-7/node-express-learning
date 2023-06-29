@@ -1,14 +1,17 @@
 const path = require("path");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 
 const adminData = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+// const expressHbs = require("express-handlebars");
 
 const app = express();
 
 // for templeting engine
-app.set("view engine", "pug");
+// app.engine("hbs", expressHbs); // for handlebars
+app.set("view engine", "ejs");
 app.set("views", "views");
 
 // Order matters - in middle wares
