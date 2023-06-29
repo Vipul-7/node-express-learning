@@ -2,20 +2,25 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 
-const adminRoutes = require("./routes/admin");
+const adminData = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
 const app = express();
 
-// Order matters - in middle wares
-app.use(bodyParser.urlencoded({ extended: false })); // In node js we have to do with the CHUNKS and the BUFFER
-app.use(express.static(path.join(__dirname, "public")));
+// for templeting engine
+app.set("view engine", "pug");
+app.set("views", "views");
 
-app.use("/admin", adminRoutes);
+// Order matters - in middle wares
+app.use(bodyParser.urlencoded({ extended: false })); // In node js we have to do with the CHUNKS and the BUFFER // extended: false - only accept default features
+app.use(express.static(path.join(__dirname, "public"))); // grant read access to the public folder // serve content statically
+
+app.use("/admin", adminData.routes); // filter the routes
 app.use(shopRoutes);
 
 app.use((req, res, next) => {
-  res.status(404).sendFile(path.join(__dirname, ".", "Views", "404.html"));
+  // res.status(404).sendFile(path.join(__dirname, ".", "Views", "404.html"));
+  res.status(404).render("404", { pageTitle: "Page not Found" });
 });
 
 app.listen(3000);
