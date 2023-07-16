@@ -1,4 +1,4 @@
-const Product = require("../models/product")
+const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
   // res.send(
@@ -15,7 +15,7 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const product = new Product(req.body.title);
-  product.save(); 
+  product.save();
   res.redirect("/"); // instead of using the status code and setHeader
 };
 
@@ -25,6 +25,9 @@ exports.getProducts = (req, res, next) => {
 
   // res.sendFile(path.join(__dirname, "..", "views", "shop.html")); // __dirname give us the absolute path to the current file
 
-  const products = Product.fetchAll();
-  res.render("shop", { prods: products, pageTitle: "Shop", path: "/" }); // to use default templating engine
+  // const products = Product.fetchAll();
+  // res.render("shop", { prods: products, pageTitle: "Shop", path: "/" }); // to use default templating engine
+  Product.fetchAll((products) => {
+    res.render("shop", { prods: products, pageTitle: "Shop", path: "/" });
+  });
 };
