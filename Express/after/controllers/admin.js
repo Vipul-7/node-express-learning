@@ -14,8 +14,12 @@ exports.postAddProduct = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const product = new Product(null, title, imageUrl, description, price); // First argument null because we require id in model. If product is new then id is null otherwise products id generated before
-  product.save();
-  res.redirect("/");
+  product
+    .save()
+    .then(() => {
+      res.redirect("/");
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
@@ -62,12 +66,12 @@ exports.postEditProduct = (req, res, next) => {
   );
 
   updatedProduct.save();
-  res.redirect("/admin/products")
+  res.redirect("/admin/products");
 };
 
-exports.postDeleteProduct = (req,res,next) => {
+exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
 
   Product.deleteById(prodId);
   res.redirect("/admin/products");
-}
+};
