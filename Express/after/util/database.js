@@ -1,11 +1,8 @@
-const mysql = require("mysql2");
+const Sequelize = require("sequelize");
 
-// connectionpool give us the way so that we don't need to make and close connection for every query
-const connectionPool = mysql.createPool({
+const sequelize = new Sequelize("learning-node", "root", "12345", {
   host: "localhost",
-  user: "root",
-  database: "learning-node",
-  password: "12345",
+  dialect:"mysql"
 });
 
-module.exports = connectionPool.promise()
+module.exports = sequelize;
