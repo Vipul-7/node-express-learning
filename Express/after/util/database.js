@@ -1,11 +1,10 @@
 const { MongoClient } = require("mongodb");
+require("dotenv").config();
 
 let _db;
 
 const mongoConnect = (callback) => {
-  MongoClient.connect(
-    "mongodb+srv://20it38:SBcSaXvfajjMMPL9@cluster0.ajoqr7a.mongodb.net/?retryWrites=true&w=majority"
-  )
+  MongoClient.connect(process.env.MONGODB_CONNECT_URL)
     .then((client) => {
       _db = client.db();
       callback();
