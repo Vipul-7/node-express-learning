@@ -52,7 +52,7 @@ class Product {
       .collection("products")
       .findOne({ _id: new ObjectId(prodId) }) // we can use find().next() either
       .then((product) => {
-        console.log(product);
+        // console.log(product);
         return product;
       })
       .catch((err) => console.log(err));
