@@ -1,5 +1,16 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const { text } = require("express");
+const nodemailer = require("nodemailer");
+
+var transporter = nodemailer.createTransport({
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "4cb78f4478c475",
+    pass: "41721ac35d9184",
+  },
+});
 
 exports.getLogin = (req, res, next) => {
   // console.log(req.get("Cookie").trim().split("=")[1]);
@@ -11,7 +22,6 @@ exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: false,
     errorMessage: message.length > 0 ? message[0] : null,
   });
 };
@@ -68,7 +78,6 @@ exports.getSignup = (req, res, next) => {
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
-    isAuthenticated: false,
     errorMessage: message.length > 0 ? message[0] : null,
   });
 };
@@ -97,7 +106,18 @@ exports.postSignup = (req, res, next) => {
 
           return user.save();
         })
-        .then((result) => res.redirect("/login"));
+        .then((result) => {
+          res.redirect("/login");
+          return transporter.sendMail({
+            from: "vipul200410116042@gmail.com",
+            to: email,
+            subject: "Signup successfully",
+            text: "First time",
+            html: "<h1>Signup successfully! Now you can login with your email ",
+          });
+        })
+        .then((result) => console.log("EMAIL SENT SUCCESSFULLY!"))
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
 };

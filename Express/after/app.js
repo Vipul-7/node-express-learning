@@ -63,7 +63,10 @@ app.use((req, res, next) => {
 //   console.log("I am in the app.js running with every request");
 //   next();
 // });
-
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  next();
+});
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
