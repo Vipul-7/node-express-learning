@@ -6,10 +6,13 @@ exports.getLogin = (req, res, next) => {
   // const isLoggedIn = req.get("Cookie").trim().split("=")[1];
   // console.log(req.session.isLoggedIn);
 
+  const message = req.flash("error");
+
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
     isAuthenticated: false,
+    errorMessage: message.length > 0 ? message[0] : null,
   });
 };
 
@@ -22,6 +25,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (!user) {
+        req.flash("error", "Invalid email or password");
         console.log("INVALID EMAIL OR PASSWORD");
         return res.redirect("/login");
       }
@@ -40,6 +44,7 @@ exports.postLogin = (req, res, next) => {
           }
 
           console.log("INVALID EMAIL OR PASSWORD");
+          req.flash("error", "Invalid email or password");
           res.redirect("/login");
         })
         .catch((err) => {
@@ -58,10 +63,13 @@ exports.postLogout = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
+  const message = req.flash("error");
+
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
     isAuthenticated: false,
+    errorMessage: message.length > 0 ? message[0] : null,
   });
 };
 
@@ -73,22 +81,23 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email })
     .then((userDoc) => {
       if (userDoc) {
-        return res.redirect("/");
+        req.flash("error", "user already exits");
+        return res.redirect("/signup");
       }
-      return bcrypt.hash(password, 12).then((hashedPassword) => {
-        const user = new User({
-          email,
-          password: hashedPassword,
-          cart: {
-            items: [],
-          },
-        });
+      return bcrypt
+        .hash(password, 12)
+        .then((hashedPassword) => {
+          const user = new User({
+            email,
+            password: hashedPassword,
+            cart: {
+              items: [],
+            },
+          });
 
-        return user.save();
-      });
-    })
-    .then((result) => {
-      res.redirect("/login");
+          return user.save();
+        })
+        .then((result) => res.redirect("/login"));
     })
     .catch((err) => console.log(err));
 };

@@ -15,6 +15,7 @@ const mongoose = require("mongoose");
 const user = require("./models/user");
 const session = require("express-session");
 const MongoDBSessionStore = require("connect-mongodb-session")(session);
+const flash = require("connect-flash"); // to display flash data and stored in session but when we used that data it will automatically removed from the session
 
 const app = express();
 require("dotenv").config();
@@ -40,6 +41,7 @@ app.use(
   // saveUnintialized : false means it is not saved until there is not changed session
   // we also can configure cookies here
 );
+app.use(flash());
 
 app.use((req, res, next) => {
   if (!req.session.user) {
