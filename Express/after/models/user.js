@@ -11,6 +11,8 @@ const userScehema = new Schema({
         type: String,
         required: true
     },
+    resetToken: String,
+    resetTokenExpiration: Date,
     cart: {
         items: [{
             productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
@@ -53,7 +55,7 @@ userScehema.methods.clearCart = function () {
 }
 
 module.exports = mongoose.model("User", userScehema)
-
+    
 // const getDb = require("../util/database").getDb;
 // const { ObjectId } = require("mongodb");
 // const { get } = require("../routes/admin");

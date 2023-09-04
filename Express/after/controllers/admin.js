@@ -32,7 +32,7 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
+  Product.find({ userId: req.user._id })
     // .select("title price -_id") // to select something, -_id means exclude
     // .populate("userId","name") // only name will populate
     .then((products) => {
@@ -78,16 +78,20 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(prodId)
     .then((product) => {
+      if (product.userId.toString() !== req.user._id.toString()) {
+        console.log("USER IS NOT AUTHORIZE TO EDIT THIS PRODUCT")
+        return res.redirect("/");
+      }
       product.title = updatedTitle;
       product.price = updatedPrice;
       product.description = updatedDescription;
       product.imageUrl = updatedImageUrl;
 
-      return product.save();
-    })
-    .then((result) => {
-      console.log("PRODUCT UPDATED");
-      res.redirect("/admin/products");
+      return product.save().then((result) => {
+        console.log("PRODUCT UPDATED");
+        res.redirect("/admin/products");
+      })
+        .catch((err) => console.log(err));
     })
     .catch((err) => console.log(err));
 };
@@ -95,8 +99,13 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
 
-  Product.findByIdAndRemove(prodId)
+  Product.deleteOne({ _id: prodId, userId: req.user._id })
     .then((result) => {
+      if (result.deletedCount === 0) {
+        console.log("USER IS NOT AUTHORIZED TO DELETE THIS PRODUCT!");
+        return res.redirect("/admin/products");
+      }
+
       console.log("PRODUCT DELETED");
       res.redirect("/admin/products");
     })
