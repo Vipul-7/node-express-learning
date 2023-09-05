@@ -13,14 +13,18 @@ router.get("/signup", authController.getSignup);
 router.post(
   "/login",
   [
-    check("email").isEmail().withMessage("Please enter a valid email"),
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email")
+      .normalizeEmail(),
     // check() checks in headers,body,query , etc and body() just check in body
     body(
       "password",
       "Please enter a password with only numbers and text and atleast 5 characters long"
     )
       .isLength({ min: 5 })
-      .isAlphanumeric(),
+      .isAlphanumeric()
+      .trim(),
   ],
   authController.postLogin
 );
@@ -30,20 +34,26 @@ router.post("/logout", authController.postLogout);
 router.post(
   "/signup",
   [
-    check("email").isEmail().withMessage("Please enter a valid email"),
+    check("email")
+      .isEmail()
+      .withMessage("Please enter a valid email")
+      .normalizeEmail(),
 
     body(
       "password",
       "Please enter a password with only numbers and text and atleast 5 characters long"
     )
       .isLength({ min: 5 })
-      .isAlphanumeric(),
-    body("confirmPassword").custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error("Confirm password have to match with password");
-      }
-      return true;
-    }),
+      .isAlphanumeric()
+      .trim(),
+    body("confirmPassword")
+      .trim()
+      .custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error("Confirm password have to match with password");
+        }
+        return true;
+      }),
   ],
   authController.postSignup
 );

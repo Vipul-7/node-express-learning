@@ -27,6 +27,11 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message.length > 0 ? message[0] : null,
+    oldInput: {
+      email: "",
+      password: "",
+    },
+    validationErrors: [],
   });
 };
 
@@ -42,6 +47,11 @@ exports.postLogin = (req, res, next) => {
       path: "/login",
       pageTitle: "Login",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email,
+        password,
+      },
+      validationErrors: errors.array(),
     });
   }
 
@@ -92,12 +102,19 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     errorMessage: message.length > 0 ? message[0] : null,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validationErrors: [],
   });
 };
 
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
 
   const errors = validationResult(req);
 
@@ -106,6 +123,12 @@ exports.postSignup = (req, res, next) => {
       path: "/signup",
       pageTitle: "Signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email,
+        password,
+        confirmPassword,
+      },
+      validationErrors: errors.array(),
     });
   }
 

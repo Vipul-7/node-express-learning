@@ -4,6 +4,7 @@ const express = require("express");
 
 const adminController = require("../controllers/admin");
 const isAuth = require("../middleware/isAuth");
+const { check, body } = require("express-validator");
 
 const router = express.Router();
 
@@ -14,11 +15,39 @@ router.get("/add-product", isAuth, adminController.getAddProduct);
 router.get("/products", isAuth, adminController.getProducts);
 
 // // /admin/add-product => POST
-router.post("/add-product", isAuth, adminController.postAddProduct);
+router.post(
+  "/add-product",
+  isAuth,
+  [
+    body("title")
+      .isLength({ min: 2 })
+      .withMessage("Title length should be more than 2 characters"),
+    body("imageUrl").isURL().withMessage("Enter a valid Image URL"),
+    body("price").isNumeric().withMessage("Price should be in number"),
+    body("description")
+      .isLength({ min: 5 })
+      .withMessage("Description should be minimum 5 characters long"),
+  ],
+  adminController.postAddProduct
+);
 
 router.get("/edit-product/:productId", isAuth, adminController.getEditProduct);
 
-router.post("/edit-product", isAuth, adminController.postEditProduct);
+router.post(
+  "/edit-product",
+  isAuth,
+  [
+    body("title")
+      .isLength({ min: 2 })
+      .withMessage("Title length should be more than 2 characters"),
+    body("imageUrl").isURL().withMessage("Enter a valid Image URL"),
+    body("price").isNumeric().withMessage("Price should be in number"),
+    body("description")
+      .isLength({ min: 5 })
+      .withMessage("Description should be minimum 5 characters long"),
+  ],
+  adminController.postEditProduct
+);
 
 router.post("/delete-product", isAuth, adminController.postDeleteProduct);
 
