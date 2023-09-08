@@ -16,6 +16,7 @@ const user = require("./models/user");
 const session = require("express-session");
 const MongoDBSessionStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash"); // to display flash data and stored in session but when we used that data it will automatically removed from the session
+const multer = require("multer");
 
 const app = express();
 require("dotenv").config();
@@ -25,11 +26,36 @@ const store = new MongoDBSessionStore({
   collection: "sessions",
 });
 
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().getTime() + "-" + file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
     secret: "my secret",
@@ -81,18 +107,17 @@ app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
   // res.redirect("/500");
-  exports.get500 = (req, res, next) => {
-    res.status(500).render("500", {
-      pageTitle: "Error!",
-      path: "/500",
-      isAuthenticated: req.session.isLoggedIn,
-    });
-  };
+  res.status(500).render("500", {
+    pageTitle: "Error!",
+    path: "/500",
+    isAuthenticated: req.session.isLoggedIn,
+  });
 });
 
 mongoose
   .connect(process.env.MONGODB_CONNECT_URL)
   .then((result) => {
+    console.log("DATABASE CONNECTED");
     app.listen(3000);
   })
   .catch((err) => console.log(err));

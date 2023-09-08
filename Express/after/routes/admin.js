@@ -22,7 +22,6 @@ router.post(
     body("title")
       .isLength({ min: 2 })
       .withMessage("Title length should be more than 2 characters"),
-    body("imageUrl").isURL().withMessage("Enter a valid Image URL"),
     body("price").isNumeric().withMessage("Price should be in number"),
     body("description")
       .isLength({ min: 5 })
@@ -40,7 +39,6 @@ router.post(
     body("title")
       .isLength({ min: 2 })
       .withMessage("Title length should be more than 2 characters"),
-    body("imageUrl").isURL().withMessage("Enter a valid Image URL"),
     body("price").isNumeric().withMessage("Price should be in number"),
     body("description")
       .isLength({ min: 5 })
