@@ -17,6 +17,10 @@ const session = require("express-session");
 const MongoDBSessionStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash"); // to display flash data and stored in session but when we used that data it will automatically removed from the session
 const multer = require("multer");
+const helmet = require("helmet");
+// const compression = require("compression");
+const morgan = require("morgan");
+const rfs = require("rotating-file-stream"); // version 3.x
 
 const app = express();
 require("dotenv").config();
@@ -49,6 +53,22 @@ const fileFilter = (req, file, cb) => {
 
 app.set("view engine", "ejs");
 app.set("views", "views");
+
+// Creates a rotating write stream
+const accessLogStream = rfs.createStream("access.log", {
+  size: "10M", // rotate every 10 MegaBytes written
+  interval: "1d", // rotates daily
+  path: path.join(__dirname, "logs"),
+  compress: "gzip", // compress rotated files
+});
+app.use(morgan({ stream: accessLogStream }));
+if (app.get("env") !== "production") {
+  app.use(morgan("dev")); //log to console on development
+}
+
+app.use(helmet());
+// app.use(compression());
+app.use(morgan("combined"));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
