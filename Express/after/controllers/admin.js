@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const Product = require("../models/product");
 const fileHelper = require("../util/file");
+const cloudinary = require("../util/cloudinary");
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -13,7 +14,19 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-exports.postAddProduct = (req, res, next) => {
+const uploadImage = (image) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(image.path, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result.secure_url);
+      }
+    });
+  });
+};
+
+exports.postAddProduct = async (req, res, next) => {
   const title = req.body.title;
   const image = req.file;
   const price = req.body.price;
@@ -35,7 +48,24 @@ exports.postAddProduct = (req, res, next) => {
     });
   }
 
-  const imageUrl = image.path;
+  // const imageUrl = image.path;
+  const imageUrl = await uploadImage(image);
+
+  if (!imageUrl) {
+    return res.status(422).render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/add-product",
+      editing: false,
+      errorMessage: "Attached file is not an image",
+      hasError: true,
+      product: {
+        title,
+        price,
+        description,
+      },
+      validationErrors: [],
+    });
+  }
 
   const errors = validationResult(req); // validation errors
 
@@ -160,7 +190,29 @@ exports.postEditProduct = (req, res, next) => {
       product.description = updatedDescription;
       if (image) {
         fileHelper.deleteFile(product.imageUrl);
-        product.imageUrl = image.path;
+        // product.imageUrl = image.path;
+        product.imageUrl = uploadImage(image).then((result) => {
+          return result.secure_url;
+        }).catch((err) => {
+          console.log(err);
+        });
+
+        if (!product.imageUrl) {
+          return res.status(422).render("admin/edit-product", {
+            pageTitle: "Edit Product",
+            path: "/admin/edit-product",
+            editing: true,
+            errorMessage: "Attached file is not an image",
+            hasError: true,
+            product: {
+              title: updatedTitle,
+              price: updatedPrice,
+              description: updatedDescription,
+              _id: prodId,
+            },
+            validationErrors: [],
+          });
+        }
       }
 
       return product
